@@ -1,0 +1,19 @@
+{
+  "name": "parser-xlsx",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "nuxt",
+    "build": "nuxt build",
+    "start": "nuxt start",
+    "generate": "nuxt generate"
+  },
+  "dependencies": {
+    "nuxt": "^2.14.0",
+    "xlsx": "^0.16.9"
+  },
+  "devDependencies": {
+    "@nuxt/types": "^2.15.2",
+    "@nuxtjs/vuetify": "^1.11.2"
+  }
+}
