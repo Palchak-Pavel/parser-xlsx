@@ -15,22 +15,22 @@
       </div>
     </div>
     <div class="row">
-      <div class="col-xs-12">
-        <div class="table-responsive">
-          <table class="table table-striped">
-            <thead>
-            <tr>
-              <th v-for="c in cols" :key="c.key">{{ c.name }}</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="(r, key) in data" :key="key">
-              <td class="td_table" v-for="c in cols" :key="c.key"> {{ r[c.key] }}</td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <!--      <div class="col-xs-12">-->
+      <!--        <div class="table-responsive">-->
+      <!--          <table class="table table-striped">-->
+      <!--            <thead>-->
+      <!--            <tr>-->
+      <!--              <th v-for="c in data.rows" :key="c.key">{{ c.name }}</th>-->
+      <!--            </tr>-->
+      <!--            </thead>-->
+      <!--            <tbody>-->
+      <!--            <tr v-for="(r, key) in data" :key="key">-->
+      <!--              <td class="td_table" v-for="c in data.rows" :key="c.key"> {{ r[c.key] }}</td>-->
+      <!--            </tr>-->
+      <!--            </tbody>-->
+      <!--          </table>-->
+      <!--        </div>-->
+      <!--      </div>-->
     </div>
   </div>
 </template>
@@ -52,19 +52,44 @@ const _SheetJSFT = [
 export default {
   data() {
     return {
-      data: ["SheetJS".split(""), "1234567".split("")],
-      cols: [
-        {name: "A", key: 0},
-        {name: "B", key: 1},
-        {name: "C", key: 2},
-        {name: "D", key: 3},
-        {name: "E", key: 4},
-        {name: "F", key: 5},
-        {name: "G", key: 6},
+      // TODO: этот код создаёт 1 лист и заносит в данные ячейки SheetNames, sheetName и cols вместо значений
+      data: [
+        // {
+        //   SheetNames: ["sheetName"]
+        // },
+        {
+          sheetName: 'Лист 1',
+          cols: [
+
+               {t: " n ", v: 1},
+               {t: " n ", v: 4}
+
+          ]
+        },
+
+        {
+          sheetName: 'Лист 2',
+          cols: [
+
+               {t: "s", v: "Sheet"},
+               {t: "s", v: "JS"}
+          ]
+        }
       ],
+      // data: ["SheetJS".split(""), "1234567".split("")],
+      // cols: [
+      //   {name: "A", key: 0},
+      //   {name: "B", key: 1},
+      //   {name: "C", key: 2},
+      //   {name: "D", key: 3},
+      //   {name: "E", key: 4},
+      //   {name: "F", key: 5},
+      //   {name: "G", key: 6},
+      // ],
       SheetJSFT: _SheetJSFT
     };
   },
+
   methods: {
     _suppress(evt) {
       evt.stopPropagation();
@@ -80,16 +105,54 @@ export default {
       const files = evt.target.files;
       if (files && files[0]) this._file(files[0]);
     },
+
     _export(evt) {
+      // let ws_data= [
+      //     [
+      //       {
+      //         sheetName: 'Лист 1',
+      //         rows: [
+      //           {r: "n", c: 1},
+      //           {r: "n", c: 4},
+      //         ]
+      //       },
+      //     ],
+      //     [
+      //       {
+      //         sheetName: 'Лист 2',
+      //         rows: [
+      //           {r: "h", c: "row"},
+      //           {r: "h", c: "column"},
+      //           {r: "h", c: "tin"},
+      //         ]
+      //       }
+      //     ]
+      //   ];
 
       /* преобразовать состояние в книгу */
-      const ws = XLSX.utils.aoa_to_sheet(this.data);
-      const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, "SheetJS");
+      const ws = XLSX.utils.json_to_sheet(this.data); // принимает массив объектов значений JS и возвращает рабочий лист
+      // const wb = XLSX.utils.book_new();
 
-      /* сгенерировать файл и отправить клиенту */
-      XLSX.writeFile(wb, "sheetjs.xlsx");
+      //TODO: Этот код создаёт листы, но не записывает в ячейки данные
+      const wb  =  {
+        SheetNames : [ "Sheet" ,  "JS" ] ,  // <- включить имена листов в массив
+        Sheets : {
+          Sheet : {  // <- каждое имя листа является ключом в объекте Sheets
+            "! ref " : " A1: B2 " ,
+            A1 : {  t : " n " ,  v : 1  },
+            B2 : {  t : " n " ,  v : 4  }
+          },
+          JS: {  // <- поскольку "JS" - вторая запись в SheetNames, это будет вторая вкладка
+            "! ref" : "A1: B2" ,
+            A2 : {  t : "s" ,  v : "Sheet"  } ,
+            B1 : {  t : "s" ,  v : "JS"  }
+          }
+        }
+      }
+      XLSX.utils.book_append_sheet(wb, ws, "sheetName");
+      XLSX.writeFile(wb, "sheetjs.xlsx"); // сгенерировать файл и отправить клиенту
     },
+
     _file(file) {
 
       /* Шаблон для настройки FileReader */
@@ -118,7 +181,7 @@ export default {
 </script>
 
 <style>
-.table, .td_table{
+.table, .td_table {
   border: solid 1px black;
   padding: 3px;
 }
